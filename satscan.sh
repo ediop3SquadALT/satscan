@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Function to run the scanner
+# fuck u nigger
 run_scanner() {
     local LOCATION_TYPE=$1
     local LOCATION=$2
@@ -301,7 +301,7 @@ if __name__ == "__main__":
 EOF
 }
 
-# Main program flow
+# stfu just do it
 echo -e "\033[1;36mSatellite Vulnerability Scanner v3.0\033[0m"
 echo -e "\033[1;33m(Now with Shodan integration and comprehensive logging)\033[0m\n"
 
