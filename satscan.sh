@@ -15,14 +15,12 @@ import sys
 import json
 from datetime import datetime
 
-# Configuration
 USER_AGENT = "Mozilla/5.0 (compatible; SatelliteScanner/1.0)"
 REQUEST_TIMEOUT = 25
 LOCATION = "$LOCATION"
 LOCATION_TYPE = "$LOCATION_TYPE"
 LOG_FILE = "satellite_log.txt"
 
-# Validated satellite tracking sources
 SOURCES = {
     "country": [
         f"https://www.n2yo.com/browse/?c={quote(LOCATION.lower())}",
@@ -40,12 +38,10 @@ SOURCES = {
 }
 
 def log_satellite(sat_data):
-    """Log all satellite data to file"""
     with open(LOG_FILE, "a") as f:
         f.write(json.dumps(sat_data) + "\n")
 
 def fetch_shodan_results(query):
-    """Scrape Shodan results without API"""
     try:
         url = f"https://www.shodan.io/search?query={quote(query)}"
         headers = {
@@ -95,7 +91,6 @@ def extract_satellites():
     sats = []
     print(f"\n[+] Searching for satellites over {LOCATION_TYPE}: {LOCATION}")
     
-    # First check Shodan for satellite devices in this location
     shodan_query = f"satellite country:{LOCATION}" if LOCATION_TYPE == "country" else f"satellite region:{LOCATION}"
     shodan_results = fetch_shodan_results(shodan_query)
     for result in shodan_results:
@@ -109,7 +104,6 @@ def extract_satellites():
             'source': 'shodan'
         })
     
-    # Then check other sources
     for url in SOURCES.get(LOCATION_TYPE.lower(), []):
         # Special handling for Celestrak
         if "celestrak.org" in url:
@@ -122,7 +116,6 @@ def extract_satellites():
         
         soup = BeautifulSoup(res.text, 'html.parser')
         
-        # N2YO parsing
         if "n2yo.com/browse" in url:
             for row in soup.select('tr.satelliteList'):
                 try:
@@ -136,7 +129,6 @@ def extract_satellites():
                 except:
                     continue
         
-        # Satbeams parsing
         elif "satbeams.com" in url:
             for row in soup.select('table.satgrid tr:has(td)'):
                 try:
@@ -149,8 +141,7 @@ def extract_satellites():
                     })
                 except:
                     continue
-        
-        # Celestrak parsing (all active satellites)
+
         elif "celestrak.org" in url:
             tle_data = res.text.split('\n')
             for i in range(0, len(tle_data), 3):
@@ -163,8 +154,7 @@ def extract_satellites():
                     'details_url': f"https://celestrak.org/satcat/search.php?NAME={quote(name)}",
                     'source': 'celestrak'
                 })
-        
-        # Satflare parsing
+
         elif "satflare.com" in url:
             for row in soup.select('table#resultsTable tr:has(td)'):
                 try:
